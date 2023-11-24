@@ -1,20 +1,15 @@
 pipeline {
   agent any
 
- environment {
-  DOCKERHUB_CREDENTIALS = credentials('DockerHub')
-  DOCKERHUB_USERNAME = DOCKERHUB_CREDENTIALS_USR
-  DOCKERHUB_PASSWORD = DOCKERHUB_CREDENTIALS_PSW
-}
-
-  
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+  }
   stages {
     stage('Checkout code') {
       steps {
         checkout scm
       }
     }
-  }
 
     stage('Build') {
       steps {
@@ -31,14 +26,8 @@ pipeline {
 
     stage('Push Images to Docker Hub') {
       steps {
-        script {
-      withCredentials([string(credentialsId: 'DockerHub', variable: 'DOCKERHUB_CREDENTIALS')]) {
-        withEnv(["DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}", "DOCKERHUB_PASSWORD=${DOCKERHUB_PASSWORD}"]) {
-          bat 'echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin'
-          bat 'docker-compose push'
-      }
-    }
-        }
+        bat 'echo %DOCKERHUB_CREDENTIALS_PSW%| docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin'
+        bat 'docker-compose push'
       }
     }
 
@@ -49,5 +38,17 @@ pipeline {
     }
   }
 
- 
+  post {
+    success {
+      mail bcc: '', body: '''Le pipeline Jenkins s\'est execute avec succes. 
+      Tout s\'est deroule sans erreur.
+      Voici le lien de l'application si vous souhaitez le consulter : https://pfea8.azurewebsites.net/
+      ''', subject: 'Sujet : Reussite du pipeline Jenkins', to: 'abdelkarimsemlali67@gmail.com, mohamedelkaddiri@gmail.com, alidihaji@gmail.com, chaimaebahij4@gmail.com'
+    }
+    failure {
+      mail bcc: '', body: '''Le pipeline Jenkins a echoue. 
+      Veuillez prendre les mesures nécessaires pour resoudre le probleme.
+      ''', subject: 'Sujet : Echec du pipeline Jenkins', to: 'abdelkarimsemlali67@gmail.com, mohamedelkaddiri@gmail.com, alidihaji@gmail.com, chaimaebahij4@gmail.com'
+    }
+  }
 }
