@@ -1,9 +1,13 @@
 pipeline {
   agent any
 
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('DockerHub')
-  }
+ environment {
+  DOCKERHUB_CREDENTIALS = credentials('DockerHub')
+  DOCKERHUB_USERNAME = DOCKERHUB_CREDENTIALS_USR
+  DOCKERHUB_PASSWORD = DOCKERHUB_CREDENTIALS_PSW
+}
+
+  
   stages {
     stage('Checkout code') {
       steps {
@@ -26,8 +30,14 @@ pipeline {
 
     stage('Push Images to Docker Hub') {
       steps {
-        bat 'echo %DOCKERHUB_CREDENTIALS_PSW%| docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin'
-        bat 'docker-compose push'
+        script {
+      withCredentials([string(credentialsId: 'DockerHub', variable: 'DOCKERHUB_CREDENTIALS')]) {
+        withEnv(["DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}", "DOCKERHUB_PASSWORD=${DOCKERHUB_PASSWORD}"]) {
+          bat 'echo %DOCKERHUB_PASSWORD% | docker login -u %DOCKERHUB_USERNAME% --password-stdin'
+          bat 'docker-compose push'
+      }
+    }
+        }
       }
     }
 
