@@ -43,12 +43,12 @@ pipeline {
       mail bcc: '', body: '''Le pipeline Jenkins s\'est execute avec succes. 
       Tout s\'est deroule sans erreur.
       Voici le lien de l'application si vous souhaitez le consulter : https://pfea8.azurewebsites.net/
-      ''', subject: 'Sujet : Reussite du pipeline Jenkins', to: 'oukmimeryem818@gmail.com'
+      ''', subject: 'Sujet : Reussite du pipeline Jenkins', to: 'oukmimariam@gmail.com'
     }
     failure {
       mail bcc: '', body: '''Le pipeline Jenkins a echoue. 
       Veuillez prendre les mesures nécessaires pour resoudre le probleme.
-      ''', subject: 'Sujet : Echec du pipeline Jenkins', to: 'oukmimeryem818@gmail.com'
+      ''', subject: 'Sujet : Echec du pipeline Jenkins', to: 'oukmimariam@gmail.com'
     }
   }
 }
